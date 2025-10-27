@@ -16,20 +16,28 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 const client = new MongoClient(uri);
 
 async function run() {
-  try {
-    // Connect the client to the server	(optional starting in v4.7)
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
-  } finally {
-   
-  }
+    try {
+        const jobsCollection = client.db('SoloSphere').collection('jobs')
+        const bidsCollection = client.db('SoloSphere').collection('bids')
+        //get all jobs data api 
+        app.get('/jobs', async (req, res) => {
+            const cursor = jobsCollection.find()
+            const result = await cursor.toArray()
+            res.send(result)
+        })
+
+        console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    } finally {
+
+    }
 }
 run().catch(console.dir);
 
 
-app.get('/', (req, res)=>{
+app.get('/', (req, res) => {
     res.send('SoloSphere now available')
 })
 
-app.listen(port, ()=>{
+app.listen(port, () => {
     console.log(`SoloSphere running on ${port}`);
 })
