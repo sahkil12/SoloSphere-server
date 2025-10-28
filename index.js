@@ -17,6 +17,12 @@ const client = new MongoClient(uri);
 async function run() {
     try {
         const jobsCollection = client.db('SoloSphere').collection('jobs')
+        // job post 
+         app.post('/job', async (req, res)=>{
+            const jobData = req.body
+            const result = await jobsCollection.insertOne(jobData)
+            res.send(result)
+        })
         const bidsCollection = client.db('SoloSphere').collection('bids')
         //get all jobs data api 
         app.get('/jobs', async (req, res) => {
@@ -29,6 +35,20 @@ async function run() {
             const id = req.params.id;
             const query =  {_id: new ObjectId(id)}
             const result = await jobsCollection.findOne(query)
+            res.send(result)
+        })
+        // get all jobs post a specific user 
+        app.get('/jobs/:email', async (req, res)=>{
+            const email = req.params.email;
+            const query = {'buyer.email': email}
+            const result = await jobsCollection.find(query).toArray()
+            res.send(result)
+        })
+        // delete job from db 
+        app.delete('/job/:id', async(req, res)=>{
+            const id = req.params.id
+            const query = {_id: new ObjectId(id)}
+            const result = await jobsCollection.deleteOne(query)
             res.send(result)
         })
         // save bid data api 
