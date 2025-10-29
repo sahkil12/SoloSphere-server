@@ -50,6 +50,20 @@ async function run() {
             const query = {_id: new ObjectId(id)}
             const result = await jobsCollection.deleteOne(query)
             res.send(result)
+        })          
+        // update my jobs data 
+        app.put('/job/:id', async(req, res)=>{
+            const id = req.params.id
+            const filter = {_id: new ObjectId(id)}
+            const jobData = req.body
+            const options = { upsert: true };
+            const updateDoc ={
+                $set:{
+                    ...jobData
+                }
+            }
+            const result = await jobsCollection.updateOne(filter, updateDoc, options)
+            res.send(result)
         })
         // save bid data api 
         app.post('/bid', async (req, res)=>{
