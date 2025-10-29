@@ -71,7 +71,31 @@ async function run() {
             const result = await bidsCollection.insertOne(bidData)
             res.send(result)
         })
-        // get bid data 
+        // get bids data 
+        app.get('/myBids/:email', async(req, res)=>{
+            const email = req.params.email
+            const query = {email: email}
+            const result = await bidsCollection.find(query).toArray()
+            res.send(result)
+        })
+        // get bids requests from db for job owner
+        app.get('/bid-requests/:email', async(req, res)=>{
+            const email = req.params.email
+            const query = {buyer_email: email}
+            const result = await bidsCollection.find(query).toArray()
+            res.send(result)
+        })
+        // update bids status 
+        app.patch('/bidUpdate/:id', async ( req, res )=>{
+            const id = req.params.id;
+            const {status} = req.body;
+            const query = {_id: new ObjectId(id)}
+            const updateDoc ={
+                $set:{ status: status }
+            }
+            const result = await bidsCollection.updateOne(query, updateDoc)
+            res.send(result)
+        })
 
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
