@@ -3,9 +3,14 @@ const cors = require('cors');
 require('dotenv').config()
 const port = process.env.PORT || 5000;
 const app = express()
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser')
 const { MongoClient, ObjectId } = require('mongodb');
 // middleware
-app.use(cors())
+app.use(cors({
+    origin: ['http://localhost:5173'],
+    credentials: true
+}))
 app.use(express.json())
 // mongodb connection
 
@@ -17,6 +22,21 @@ const client = new MongoClient(uri);
 async function run() {
     try {
         const jobsCollection = client.db('SoloSphere').collection('jobs')
+        // jwt token 
+        app.post('/jwt', async (req, res)=>{
+            const user = req.body;
+            const token = jwt.sign(user, process.env.SECRET_TOKEN, {
+                expiresIn: '30d'
+            })
+            res.cookie('token', token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+            })
+
+            res.send({success: true})
+        })
+
         // job post 
          app.post('/job', async (req, res)=>{
             const jobData = req.body
