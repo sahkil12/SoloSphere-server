@@ -8,8 +8,12 @@ const cookieParser = require('cookie-parser')
 const { MongoClient, ObjectId } = require('mongodb');
 // middleware
 app.use(cors({
-    origin: ['http://localhost:5173'],
-    credentials: true
+    origin: [
+        'http://localhost:5173',
+        'https://solosphere-8a250.web.app'
+    ],
+    credentials: true,
+    optionsSuccessStatus: 200,
 }))
 app.use(express.json())
 app.use(cookieParser())
