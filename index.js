@@ -115,9 +115,43 @@ async function run() {
             const result = await jobsCollection.updateOne(filter, updateDoc, options)
             res.send(result)
         })
+        // get all jobs
+        app.get('/all-jobs', async (req, res) => {
+            const size = parseInt(req.query.size)
+            const page = parseInt(req.query.page) - 1
+            const filter = req.query.filter
+            const sort = req.query.sort
+            let query = {}
+            if (filter) query = { category: filter }
+            let options = {}
+            if (sort) options = { sort: { deadline: sort === 'asc' ? 1 : -1 } }
+            const result = await jobsCollection
+                .find(query, options)
+                .skip(page * size)
+                .limit(size)
+                .toArray()
+            res.send(result)
+        })
+        // get all jobs count
+        app.get('/jobs-count', async (req, res) => {
+            const filter = req.query.filter
+            let query = {}
+            if (filter) query = { category: filter }
+            const count = await jobsCollection.countDocuments(query)
+            res.send({ count })
+        })
         // save bid data api 
         app.post('/bid', async (req, res) => {
             const bidData = req.body
+            //check if it a duplicate request 
+            const query = {
+                email: bidData.email,
+                jobId: bidData.jobId
+            }
+            const alreadyApplied = await bidsCollection.findOne(query)
+            if (alreadyApplied) {
+                return res.status(400).send('You hove already place a bid on this job')
+            }
             const result = await bidsCollection.insertOne(bidData)
             res.send(result)
         })
@@ -149,7 +183,7 @@ async function run() {
             const { status } = req.body;
             const query = { _id: new ObjectId(id) }
             const updateDoc = {
-                $set: { status: status }
+                $set: { status }
             }
             const result = await bidsCollection.updateOne(query, updateDoc)
             res.send(result)
