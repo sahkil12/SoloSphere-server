@@ -36,9 +36,9 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri);
 
-
 async function run() {
     try {
+        // await client.connect()
         const jobsCollection = client.db('SoloSphere').collection('jobs')
         // jwt token 
         app.post('/jwt', async (req, res) => {
